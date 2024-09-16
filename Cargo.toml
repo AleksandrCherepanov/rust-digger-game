@@ -1,0 +1,10 @@
+[package]
+name = "rust-digger-game"
+description = "Digger video game written in Rust"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+flate2 = { version = "1.0.33", features = ["zlib"], default-features = false }
+libz-sys = "1.1.20"
+sdl2 = "0.37.0"

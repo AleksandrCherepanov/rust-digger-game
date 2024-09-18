@@ -1,7 +1,7 @@
 use crate::globals::SPRITES;
 
 #[derive(Default, Debug)]
-pub struct Sprite {
+pub struct Sprite1 {
     nch: [i16; SPRITES],
     ch: [i16; SPRITES+1],
     mov: [String; SPRITES],
@@ -22,7 +22,7 @@ pub struct Sprite {
 
 }
 
-impl Sprite {
+impl Sprite1 {
     pub fn create(&mut self, n: usize, ch: i16, mov: &str, wid: i16, hei: i16, bwid: i16, bhei: i16) {
         self.nch[n] = ch;
         self.ch[n] = ch;

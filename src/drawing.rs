@@ -1,9 +1,9 @@
 use crate::globals::{BAGS, BONUSES, DIGGERS, FIREBALLS, FIRST_BONUS, FIRST_DIGGER, FIRST_FIRE_BALL, FIRST_MONSTER, LAST_BONUS, LAST_DIGGER, LAST_FIRE_BALL, MONSTERS};
-use crate::sprite::Sprite;
+use crate::sprite::Sprite1;
 
 #[derive(Debug)]
 pub struct Drawing<'a> {
-    sprite: &'a mut Sprite,
+    sprite: &'a mut Sprite1,
     monbufs: [String; MONSTERS],
     bagbufs: [String; BAGS],
     bonusbufs: [String; BONUSES],
@@ -18,7 +18,7 @@ pub struct Drawing<'a> {
 }
 
 impl<'a> Drawing<'a> {
-    pub fn new(sprite: &mut Sprite) -> Drawing {
+    pub fn new(sprite: &mut Sprite1) -> Drawing {
         Drawing {
             sprite,
             monbufs: [const { String::new() }; MONSTERS],

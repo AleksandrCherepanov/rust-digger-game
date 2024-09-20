@@ -19,6 +19,7 @@ mod resources;
 mod sprites;
 mod game;
 mod frame;
+mod animation;
 
 fn main() {
     let settings = Settings::new();

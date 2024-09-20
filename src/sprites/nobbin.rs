@@ -1,4 +1,4 @@
-use crate::sprites::Drawable;
+use crate::sprites::{Animated, Drawable};
 
 const WIDTH: usize = 32;
 const HEIGHT: usize = 30;
@@ -15,6 +15,16 @@ const NOBBIN_D: [u8; SIZE] = [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x
 
 pub struct Nobbin {
     sprite: [u8; SIZE],
+}
+
+impl Animated for Nobbin {
+    fn left() -> (i32, i32) {
+        (0, 2)
+    }
+
+    fn right() -> (i32, i32) {
+        (0, 2)
+    }
 }
 
 impl Drawable for Nobbin {

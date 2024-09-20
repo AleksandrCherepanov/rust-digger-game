@@ -1,27 +1,19 @@
-use std::thread::sleep;
-use std::time::Duration;
-use sdl2::{EventPump, Sdl};
+use sdl2::Sdl;
 use sdl2::pixels::Color;
-use sdl2::rect::{Point, Rect};
 use sdl2::render::{WindowCanvas};
+use crate::animation::Animation;
+use crate::frame::Frame;
 use crate::resources::background::draw_background;
-use crate::resources::palette::get_color;
 use crate::resources::text;
 use crate::scores::Scores;
 use crate::settings::Settings;
-use crate::sprites::back::Back;
+use crate::sprites::{Animated, Drawable, Sprite};
 use crate::sprites::bag::Bag;
 use crate::sprites::bonus::Bonus;
 use crate::sprites::digger::Digger;
 use crate::sprites::emerald::Emerald;
-use crate::sprites::explosive::Explosive;
-use crate::sprites::fire::Fire;
-use crate::sprites::gold::Gold;
-use crate::sprites::grave::Grave;
 use crate::sprites::hobbin::Hobbin;
-use crate::sprites::life::Life;
 use crate::sprites::nobbin::Nobbin;
-use crate::sprites::{Drawable, Sprite};
 
 pub struct Screen {
     canvas: WindowCanvas,
@@ -37,6 +29,13 @@ impl Screen {
         Screen {
             canvas
         }
+    }
+
+    pub fn initial(&mut self, settings: &Settings, scores: &Scores) {
+        self.show_background();
+        self.show_game_name();
+        self.show_players(settings);
+        self.show_scores(scores);
     }
 
     pub fn show_game_name(&mut self) {
@@ -79,7 +78,7 @@ impl Screen {
             let mut line: String = String::from(&scores.scores_init[i]);
             let score: String = format!("{:6}", scores.scores_high[i + 1]);
             line = String::from(line) + "  " + &score;
-            self.draw_text(&line, 16, (31 + 13*i) as i32, color);
+            self.draw_text(&line, 16, (31 + 13 * i) as i32, color);
             color = 1;
         }
     }
@@ -88,115 +87,95 @@ impl Screen {
         draw_background(&mut self.canvas);
     }
 
-    pub fn show_nobbin(&mut self) {
-        let mut xx = 10;
-        let yy = 10;
-        for i in 0..4 {
-            Sprite::<Nobbin>::new(i).draw(&mut self.canvas, xx, yy);
-            xx += 32 + 10;
+    pub fn play_initial_nobbin_animation(&mut self, a: &mut Animation, f: usize, x: i32) -> i32 {
+        let mut x = x;
+
+        if (f == 50) {
+            self.draw_sprite::<Nobbin>(0, 292, 63);
+        }
+        if f > 50 && f <= 77 {
+            x -= 4;
+            self.draw_animation::<Nobbin>(a, Animation::left(), x, 63);
+        }
+        if f > 77 {
+            self.draw_animation::<Nobbin>(a, Animation::right(), 184, 63)
+        }
+        if (f == 84) {
+            self.draw_text("NOBBIN", 216, 64, 2);
         }
 
+        x
     }
 
-    pub fn show_digger(&mut self) {
-        let mut xx = 10;
-        let yy = 50;
-        for i in 1..14 {
-            Sprite::<Digger>::new(i).draw(&mut self.canvas, xx, yy);
-            xx += 32 + 10;
+    pub fn play_initial_hobbin_animation(&mut self, a: &mut Animation, f: usize, x: i32) -> i32 {
+        let mut x = x;
+
+        if (f == 90) {
+            self.draw_sprite::<Hobbin>(0, 292, 82);
+            x = 292;
         }
+        if f > 90 && f <= 117 {
+            x -= 4;
+            self.draw_animation::<Hobbin>(a, Animation::left(), x, 82);
+        }
+        if f > 117 {
+            self.draw_animation::<Hobbin>(a, Animation::right(), 184, 82);
+        }
+        if (f == 123) {
+            self.draw_text("HOBBIN", 216, 83, 2);
+        }
+
+        x
     }
 
-    pub fn show_grave(&mut self) {
-        let mut xx = 10;
-        let yy = 90;
-        for i in 0..5 {
-            Sprite::<Grave>::new(i).draw(&mut self.canvas, xx, yy);
-            xx += 32 + 10;
+    pub fn play_initial_digger_animation(&mut self, a: &mut Animation, f: usize, x: i32) -> i32 {
+        let mut x = x;
+
+        if (f == 130) {
+            self.draw_sprite::<Digger>(9, 292, 101);
+            x = 292;
         }
+        if f > 130 && f <= 157 {
+            x -= 4;
+            self.draw_animation::<Digger>(a, Animation::left(), x, 101);
+        }
+        if f > 157 {
+            self.draw_animation::<Digger>(a, Animation::right(), 184, 101);
+        }
+        if (f == 163) {
+            self.draw_text("DIGGER", 216, 102, 2);
+        }
+
+        x
     }
 
-    pub fn show_bags(&mut self) {
-        let mut xx = 220;
-        let yy = 90;
-        for i in 0..4 {
-            Sprite::<Bag>::new(i).draw(&mut self.canvas, xx, yy);
-            xx += 32 + 10;
+    pub fn show_initial_items(&mut self, f: usize) {
+        if (f == 178) {
+            self.draw_sprite::<Bag>(0, 184, 120);
+        }
+        if (f == 183) {
+            self.draw_text("GOLD", 216, 121, 2);
+        }
+        if (f == 198) {
+            self.draw_sprite::<Emerald>(0, 184, 141);
+        }
+        if (f == 203) {
+            self.draw_text("EMERALD", 216, 140, 2);
+        }
+        if (f == 218) {
+            self.draw_sprite::<Bonus>(0, 184, 158);
+        }
+        if (f == 223) {
+            self.draw_text("BONUS", 216, 159, 2);
         }
     }
-
-    pub fn show_golds(&mut self) {
-        let mut xx = 388;
-        let yy = 90;
-        for i in 0..3 {
-            Sprite::<Gold>::new(i).draw(&mut self.canvas, xx, yy);
-            xx += 32 + 10;
-        }
-
-        Sprite::<Emerald>::new(0).draw(&mut self.canvas, xx, yy);
-    }
-
-    pub fn show_hobbins(&mut self) {
-        let mut xx = 178;
-        let yy = 10;
-        for i in 0..8 {
-            Sprite::<Hobbin>::new(i).draw(&mut self.canvas, xx, yy);
-            xx += 32 + 10;
-        }
-    }
-
-    pub fn show_bonuses(&mut self) {
-        let mut xx = 514;
-        let yy = 10;
-        for i in 0..1 {
-            Sprite::<Bonus>::new(i).draw(&mut self.canvas, xx, yy);
-            xx += 32 + 10;
-        }
-    }
-
-    pub fn show_fire(&mut self) {
-        let mut xx = 10;
-        let yy = 130;
-        for i in 0..3 {
-            Sprite::<Fire>::new(i).draw(&mut self.canvas, xx, yy);
-            xx += 32 + 10;
-        }
-
-        for i in 0..3 {
-            Sprite::<Explosive>::new(i).draw(&mut self.canvas, xx, yy);
-            xx += 32 + 10;
-        }
-    }
-
-    pub fn show_backs(&mut self) {
-        let mut xx = 10;
-        let yy = 170;
-        for i in 0..8 {
-            Sprite::<Back>::new(i).draw(&mut self.canvas, xx, yy);
-            xx += 40 + 10;
-        }
-
-        for i in 0..3 {
-            Sprite::<Life>::new(i).draw(&mut self.canvas, xx, yy);
-            xx += 32 + 10;
-        }
-    }
-
-    pub fn show_animated(&mut self) {
-        let mut xx = 288;
-        let yy = 63;
-        let mut n = 0;
-        for i in 0..28 {
-            if n > 3 {
-                n = 0;
+    pub fn clean_initial_items(&mut self, f: usize) {
+        if (f == 0) {
+            let mut i = 54;
+            while (i < 174) {
+                self.draw_text("            ", 164, i, 0);
+                i += 12;
             }
-            self.canvas.set_draw_color(Color::BLACK);
-            self.canvas.fill_rect(Rect::new((xx + 4) * 2, yy, 62, 60)).unwrap();
-            Sprite::<Nobbin>::new(n).draw(&mut self.canvas, (xx + 4) * 2, yy);
-            xx -= 4;
-            n += 2;
-            self.render();
-            sleep(Duration::from_millis(120));
         }
     }
 
@@ -205,7 +184,11 @@ impl Screen {
     }
 
     pub fn draw_sprite<T: Drawable>(&mut self, id: usize, x: i32, y: i32) {
-        Sprite::<T>::new(id).draw(&mut self.canvas, x * 2, y * 2);
+        Sprite::<T>::new(id).draw(&mut self.canvas, x, y);
+    }
+
+    pub fn draw_animation<T: Drawable + Animated>(&mut self, animation: &mut Animation, direction: i32, x: i32, y: i32) {
+        animation.play::<T>(&mut self.canvas, direction, x, y);
     }
 
     pub fn draw_text(&mut self, text: &str, x: i32, y: i32, flag: i32) {

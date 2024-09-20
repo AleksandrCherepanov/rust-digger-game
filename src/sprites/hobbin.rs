@@ -1,4 +1,4 @@
-use crate::sprites::Drawable;
+use crate::sprites::{Animated, Drawable};
 
 const WIDTH: usize = 32;
 const HEIGHT: usize = 30;
@@ -20,6 +20,16 @@ const HOBBIN_4_L: [u8; SIZE] = [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
 
 pub struct Hobbin {
     sprite: [u8; SIZE]
+}
+
+impl Animated for Hobbin {
+    fn left() -> (i32, i32) {
+        ((HOBBINS.len() - 4) as i32, (HOBBINS.len() - 1) as i32)
+    }
+
+    fn right() -> (i32, i32) {
+        (0, 3)
+    }
 }
 
 impl Drawable for Hobbin {

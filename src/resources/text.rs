@@ -4,7 +4,7 @@ use crate::resources::font::{FONT, LETTER_WIDTH};
 use crate::resources::palette::get_color;
 
 pub fn print(canvas: &mut WindowCanvas, text: &str, x: i32, y: i32, flag: i32) {
-    let mut x = x * 2;
+    let mut x = x;
     for c in text.chars() {
         if !c.is_ascii() {
             continue;
@@ -16,12 +16,13 @@ pub fn print(canvas: &mut WindowCanvas, text: &str, x: i32, y: i32, flag: i32) {
         }
 
         print_letter(canvas, &letter, x, y, flag);
-        x += LETTER_WIDTH as i32;
+        x += LETTER_WIDTH as i32 / 2;
     }
 }
 
 fn print_letter(canvas: &mut WindowCanvas, letter: &[i8; 24 * 24], x: i32, y: i32, flag: i32) {
-    let mut xx = x;
+    let mut initial_x = x * 2;
+    let mut xx = initial_x;
     let mut yy = y * 2;
 
     for i in 0..letter.len() {
@@ -30,7 +31,7 @@ fn print_letter(canvas: &mut WindowCanvas, letter: &[i8; 24 * 24], x: i32, y: i3
 
         canvas.draw_point(Point::new(xx, yy)).unwrap();
         if (i + 1) % LETTER_WIDTH == 0 {
-            xx = x;
+            xx = initial_x;
             yy += 1;
         }
         xx += 1;

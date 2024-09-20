@@ -1,4 +1,4 @@
-use crate::sprites::Drawable;
+use crate::sprites::{Animated, Drawable};
 
 const WIDTH: usize = 32;
 const HEIGHT: usize = 30;
@@ -34,6 +34,16 @@ pub struct Digger {
     sprite: [u8; SIZE],
 }
 
+impl Animated for Digger {
+    fn left() -> (i32, i32) {
+        ((DIGGERS.len() - 7) as i32, (DIGGERS.len() - 5) as i32)
+    }
+
+    fn right() -> (i32, i32) {
+        (1, 3)
+    }
+}
+
 impl Drawable for Digger {
     fn new(id: usize) -> Digger {
         assert!(id < DIGGERS.len());
@@ -58,18 +68,3 @@ impl Drawable for Digger {
         self.sprite[idx] as usize
     }
 }
-
-
-// vgaldigger1,  vgaldigger1mask,
-// vgaldigger2,  vgaldigger2mask,
-// vgaldigger3,  vgaldigger3mask,   /* 15 */
-// vgalxdigger1, vgalxdigger1mask,
-// vgalxdigger2, vgalxdigger2mask,
-// vgalxdigger3, vgalxdigger3mask,
-// vgaddigger1,  vgaddigger1mask,
-// vgaddigger2,  vgaddigger2mask,   /* 20 */
-// vgaddigger3,  vgaddigger3mask,
-// vgadxdigger1, vgadxdigger1mask,
-// vgadxdigger2, vgadxdigger2mask,
-// vgadxdigger3, vgadxdigger3mask,
-// vgadiggerd,   vgadiggerdmask,

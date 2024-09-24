@@ -15,6 +15,7 @@ pub mod explosive;
 pub mod back;
 pub mod emerald;
 pub mod life;
+pub mod border;
 
 const WIDTH_OFFSET: usize = 5;
 const HEIGHT_OFFSET: usize = 5;
@@ -46,7 +47,7 @@ impl<T: Drawable> Sprite<T> {
     }
 
     pub fn draw(&self, canvas: &mut WindowCanvas, x: i32, y: i32) {
-        let mut initial_x = x * WIDTH_RATIO as i32;
+        let initial_x = x * WIDTH_RATIO as i32;
         let mut xx = initial_x;
         let mut yy = y * HEIGHT_RATIO as i32;
 

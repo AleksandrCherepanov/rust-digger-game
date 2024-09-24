@@ -43,4 +43,3 @@ impl Drawable for Back {
         self.sprite[idx] as usize
     }
 }
-

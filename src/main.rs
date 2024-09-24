@@ -1,12 +1,8 @@
-use std::io::Read;
-use crate::drawing::Drawing;
 use crate::frame::Frame;
 use crate::game::Game;
 use crate::scores::Scores;
 use crate::screen::Screen;
 use crate::settings::Settings;
-use crate::sound::Sound;
-use crate::sprite::Sprite1;
 
 mod scores;
 mod settings;
@@ -20,6 +16,7 @@ mod sprites;
 mod game;
 mod frame;
 mod animation;
+mod entity;
 
 fn main() {
     let settings = Settings::new();

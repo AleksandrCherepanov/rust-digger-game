@@ -1,6 +1,5 @@
 use std::fs::File;
 use std::io::{BufReader, Read, Seek, SeekFrom};
-use std::str;
 use crate::settings::Settings;
 
 const SCORES_HIGH_LINES: usize = 12;

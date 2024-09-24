@@ -31,8 +31,8 @@ impl Animation {
         x: i32,
         y: i32,
     ) {
-        let mut first_sprite: i32;
-        let mut last_sprite: i32;
+        let first_sprite: i32;
+        let last_sprite: i32;
 
         if direction == Self::left() {
             first_sprite = T::left().0;

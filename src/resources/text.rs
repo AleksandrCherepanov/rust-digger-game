@@ -21,7 +21,7 @@ pub fn print(canvas: &mut WindowCanvas, text: &str, x: i32, y: i32, flag: i32) {
 }
 
 fn print_letter(canvas: &mut WindowCanvas, letter: &[i8; 24 * 24], x: i32, y: i32, flag: i32) {
-    let mut initial_x = x * 2;
+    let initial_x = x * 2;
     let mut xx = initial_x;
     let mut yy = y * 2;
 

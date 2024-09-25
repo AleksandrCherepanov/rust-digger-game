@@ -1,5 +1,7 @@
 use sdl2::event::Event;
-use sdl2::Sdl;
+use sdl2::keyboard::Keycode;
+use sdl2::{EventPump, Sdl};
+use crate::animation::Animation;
 use crate::entity::level::Level;
 use crate::frame::{Frame, TICKS_PER_FRAME};
 use crate::scores::Scores;
@@ -36,15 +38,23 @@ impl<'a> Game<'a> {
 
     pub fn start(&mut self, screen: &mut Screen) {
         let mut event_listener = self.sdl.event_pump().unwrap();
+
         screen.clean();
         'exit: loop {
-            // screen.initial(&self.settings, &self.scores);
-            //
-            // let mut nobbin_anim = Animation::new(292, 63);
-            // let mut hobbin_anim = Animation::new(292, 82);
-            // let mut digger_anim = Animation::new(292, 101);
-            // let mut x = 292;
-            let mut i = 1;
+            screen.initial();
+
+            let should_continue = self.main_menu(screen, &mut event_listener);
+            if !should_continue {
+                break;
+            }
+
+            let mut level = Level::new(1);
+            level.init_field();
+            level.init_emeralds();
+            level.init_bags();
+            level.init_diggers();
+
+            let mut digger_animation = Animation::new(level.digger.x, level.digger.y);
             loop {
                 for event in event_listener.poll_iter() {
                     match event {
@@ -52,35 +62,15 @@ impl<'a> Game<'a> {
                         _ => {}
                     }
                 }
-                if self.started {
-                    break;
-                }
 
-                if self.current_frame % 20 == 0 {
-                    screen.clean();
-                    let mut level = Level::new(i);
-                    level.init_field();
-                    level.init_emeralds();
-                    level.init_bags();
-                    screen.show_level(&mut level);
-                    i += 1;
-                }
-                // screen.clean_initial_items(self.current_frame);
-                //
+                level.draw(screen);
+                level.digger.animate(screen, &mut digger_animation, Animation::right());
+
+                screen.draw_text("           ",100,0,3);
+                self.scores.draw_current_scores(screen);
+                level.digger.draw_lives(screen);
+
                 self.new_frame(screen);
-                // x = screen.play_initial_nobbin_animation(&mut nobbin_anim, self.current_frame, x);
-                // x = screen.play_initial_hobbin_animation(&mut hobbin_anim, self.current_frame, x);
-                // x = screen.play_initial_digger_animation(&mut digger_anim, self.current_frame, x);
-                //
-                // screen.show_initial_items(self.current_frame);
-                //
-                // if self.current_frame > 250 {
-                //     self.current_frame = 0;
-                //     nobbin_anim = Animation::new(292, 63);
-                //     hobbin_anim = Animation::new(292, 82);
-                //     digger_anim = Animation::new(292, 101);
-                //     x = 292;
-                // }
             }
         }
     }
@@ -95,5 +85,43 @@ impl<'a> Game<'a> {
             self.current_time = 0;
         }
         self.current_frame += 1;
+    }
+
+    fn main_menu(&mut self, screen: &mut Screen, event_listener: &mut EventPump) -> bool {
+        self.scores.draw_saved_scores(screen);
+
+        let mut nobbin_anim = Animation::new(292, 63);
+        let mut hobbin_anim = Animation::new(292, 82);
+        let mut digger_anim = Animation::new(292, 101);
+        let mut x = 292;
+        loop {
+            for event in event_listener.poll_iter() {
+                match event {
+                    Event::Quit { .. } => return false,
+                    Event::KeyDown { keycode:Some(Keycode::Return), .. } => self.started = true,
+                    _ => {}
+                }
+            }
+            if self.started {
+                return true;
+            }
+
+            screen.clean_initial_items(self.current_frame);
+
+            self.new_frame(screen);
+            x = screen.play_initial_nobbin_animation(&mut nobbin_anim, self.current_frame, x);
+            x = screen.play_initial_hobbin_animation(&mut hobbin_anim, self.current_frame, x);
+            x = screen.play_initial_digger_animation(&mut digger_anim, self.current_frame, x);
+
+            screen.show_initial_items(self.current_frame);
+
+            if self.current_frame > 250 {
+                self.current_frame = 0;
+                nobbin_anim = Animation::new(292, 63);
+                hobbin_anim = Animation::new(292, 82);
+                digger_anim = Animation::new(292, 101);
+                x = 292;
+            }
+        }
     }
 }

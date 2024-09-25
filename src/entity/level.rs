@@ -1,9 +1,9 @@
-use sdl2::render::WindowCanvas;
+use crate::animation::Animation;
 use crate::resources::level::{LEVELS, SIZE, WIDTH, HEIGHT, is_spawn, is_vertical_path, is_horizontal_path, is_emerald, is_bag};
 use crate::sprites::emerald::Emerald;
-use crate::sprites::Sprite;
 use crate::entity::bag::Bag as EntityBag;
 use crate::entity::digger::Digger as EntityDigger;
+use crate::screen::Screen;
 use crate::sprites::back::Back;
 use crate::sprites::bag::Bag;
 use crate::sprites::border::{BorderBottom, BorderLeft, BorderRight, BorderTop};
@@ -13,7 +13,7 @@ pub struct Level {
     field: [i16; SIZE],
     emeralds: [isize; SIZE],
     bags: Vec<EntityBag>,
-    diggers: Vec<EntityDigger>
+    pub digger: EntityDigger,
 }
 
 impl Level {
@@ -23,7 +23,7 @@ impl Level {
             emeralds: [0; SIZE],
             bags: Vec::new(),
             level,
-            diggers: vec![EntityDigger::default()]
+            digger: EntityDigger::default(),
         }
     }
 
@@ -81,40 +81,68 @@ impl Level {
     }
 
     pub fn init_diggers(&mut self) {
-
+        self.digger.v = 9;
+        self.digger.mdir = 4;
+        self.digger.h = 7;
+        self.digger.x = self.digger.h * 20 + 12;
+        self.digger.dir = Animation::right();
+        self.digger.rx = 0;
+        self.digger.ry = 0;
+        self.digger.bagtime = 0;
+        self.digger.alive = true;
+        self.digger.dead = false;
+        self.digger.invin = false;
+        self.digger.ivt = 0;
+        self.digger.deathstage = 1;
+        self.digger.y = self.digger.v * 18 + 18;
+        self.digger.notfiring = true;
+        self.digger.emocttime = 0;
+        self.digger.firepressed = false;
+        self.digger.expsn = 0;
+        self.digger.rechargetime = 0;
+        self.digger.emn = 0;
+        self.digger.msc = 1;
+        self.digger.lives = 3;
     }
 
-    pub fn draw_emeralds(&mut self, canvas: &mut WindowCanvas) {
+    pub fn draw(&mut self, screen: &mut Screen) {
+        self.draw_back(screen);
+        self.draw_path(screen);
+        self.draw_emeralds(screen);
+        self.draw_bags(screen);
+    }
+
+    fn draw_emeralds(&mut self, screen: &mut Screen) {
         for x in 0..WIDTH {
             for y in 0..HEIGHT {
                 if self.emeralds[y * WIDTH + x] == 1 {
-                    Sprite::<Emerald>::new(0).draw(canvas, (x * 20 + 12) as i32, (y * 18 + 21) as i32)
+                    screen.draw_sprite::<Emerald>(0, (x * 20 + 12) as i32, (y * 18 + 21) as i32);
                 }
             }
         }
     }
 
-    pub fn draw_bags(&mut self, canvas: &mut WindowCanvas) {
+    fn draw_bags(&mut self, screen: &mut Screen) {
         for b in &self.bags {
-            Sprite::<Bag>::new(0).draw(canvas, b.x, b.y)
+            screen.draw_sprite::<Bag>(0, b.x, b.y);
         }
     }
 
-    pub fn draw_back(&mut self, canvas: &mut WindowCanvas) {
+    fn draw_back(&mut self, screen: &mut Screen) {
         let level = self.get_level_safe();
 
         let mut y = 14;
         while y < 200 {
             let mut x = 0;
             while x < 320 {
-                Sprite::<Back>::new(level - 1).draw(canvas, x, y);
+                screen.draw_sprite::<Back>(level - 1, x, y);
                 x += 20;
             }
             y += 4;
         }
     }
 
-    pub fn draw_path(&mut self, canvas: &mut WindowCanvas) {
+    fn draw_path(&mut self, screen: &mut Screen) {
         for x in 0..WIDTH {
             for y in 0..HEIGHT {
                 if self.field[y * WIDTH + x] & 0x2000 == 0 {
@@ -127,12 +155,12 @@ impl Level {
                         while i >= 3 {
                             let rx = xx as i32 - 4;
                             let ry = yy as i32 - i + 15;
-                            Sprite::<BorderBottom>::new(2).draw(canvas, rx, ry);
+                            screen.draw_sprite::<BorderBottom>(2, rx, ry);
                             i -= 3;
                         }
                         let rx = xx as i32 - 4;
                         let ry = yy as i32 - 6 + 3;
-                        Sprite::<BorderTop>::new(0).draw(canvas, rx, ry);
+                        screen.draw_sprite::<BorderTop>(0, rx, ry);
                     }
                     if self.field[y * WIDTH + x] & 0x1f != 0x1f {
                         self.field[y * WIDTH + x] &= 0xdfe0u16 as i16;
@@ -140,23 +168,23 @@ impl Level {
                         while i >= 4 {
                             let rx = xx as i32 - i + 16;
                             let ry = yy as i32 - 1;
-                            Sprite::<BorderRight>::new(1).draw(canvas, rx, ry);
+                            screen.draw_sprite::<BorderRight>(1, rx, ry);
                             i -= 4;
                         }
                         let rx = xx as i32 + 4 - 8;
                         let ry = yy as i32 - 1;
-                        Sprite::<BorderLeft>::new(3).draw(canvas, rx, ry);
+                        screen.draw_sprite::<BorderLeft>(3, rx, ry);
                     }
                     if x < 14 && (self.field[y * WIDTH + x + 1] & 0xfdf != 0xfdf) {
                         let rx = xx as i32 + 16;
                         let ry = yy as i32 - 1;
-                        Sprite::<BorderRight>::new(1).draw(canvas, rx, ry);
+                        screen.draw_sprite::<BorderRight>(1, rx, ry);
                     }
 
                     if y < 9 && (self.field[(y + 1) * WIDTH + x] & 0xfdf != 0xfdf) {
                         let rx = xx as i32 - 4;
                         let ry = yy as i32 + 15;
-                        Sprite::<BorderBottom>::new(2).draw(canvas, rx, ry);
+                        screen.draw_sprite::<BorderBottom>(2, rx, ry);
                     }
                 }
             }

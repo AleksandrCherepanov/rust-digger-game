@@ -17,8 +17,6 @@ pub mod emerald;
 pub mod life;
 pub mod border;
 
-const WIDTH_OFFSET: usize = 5;
-const HEIGHT_OFFSET: usize = 5;
 const WIDTH_RATIO: usize = 2;
 const HEIGHT_RATIO: usize = 2;
 
@@ -68,8 +66,8 @@ impl<T: Drawable> Sprite<T> {
 
     pub fn clean(&self, canvas: &mut WindowCanvas, x: i32, y: i32) {
         canvas.set_draw_color(Color::BLACK);
-        let real_width = self.sprite.width() + WIDTH_OFFSET;
-        let real_height = self.sprite.height() + HEIGHT_OFFSET;
+        let real_width = self.sprite.width() + 1;
+        let real_height = self.sprite.height();
         let real_x = x * WIDTH_RATIO as i32;
         let real_y = y * HEIGHT_RATIO as i32;
         let rect = Rect::new(real_x, real_y, real_width as u32, real_height as u32);

@@ -2,11 +2,8 @@ use sdl2::Sdl;
 use sdl2::pixels::Color;
 use sdl2::render::{WindowCanvas};
 use crate::animation::Animation;
-use crate::entity::level::Level;
 use crate::resources::background::draw_background;
 use crate::resources::text;
-use crate::scores::Scores;
-use crate::settings::Settings;
 use crate::sprites::{Animated, Drawable, Sprite};
 use crate::sprites::bag::Bag;
 use crate::sprites::bonus::Bonus;
@@ -23,67 +20,30 @@ impl Screen {
     pub fn new(sdl: &Sdl) -> Screen {
         let video = sdl.video().unwrap();
         let window = video.window("D I G G E R", 640, 400).build().unwrap();
+
         let canvas = window.into_canvas().build().unwrap();
-        sdl.mouse().show_cursor(false);
 
         Screen {
             canvas
         }
     }
 
-    pub fn initial(&mut self, settings: &Settings, scores: &Scores) {
+    pub fn initial(&mut self) {
         self.show_background();
         self.show_game_name();
-        self.show_players(settings);
-        self.show_scores(scores);
+        self.show_players();
     }
 
-    pub fn show_game_name(&mut self) {
+    fn show_game_name(&mut self) {
         text::print(&mut self.canvas, "D I G G E R", 100, 0, 3);
     }
 
-    pub fn show_players(&mut self, settings: &Settings) {
-        if settings.get_diggers() == 2 {
-            if settings.is_gauntlet_mode() {
-                text::print(&mut self.canvas, "TWO PLAYER", 180, 25, 3);
-                text::print(&mut self.canvas, "GAUNTLET", 192, 39, 3);
-                return;
-            }
-
-            text::print(&mut self.canvas, "TWO PLAYER", 180, 25, 3);
-            text::print(&mut self.canvas, "SIMULTANEOUS", 170, 39, 3);
-            return;
-        }
-
-        if settings.is_gauntlet_mode() {
-            text::print(&mut self.canvas, "GAUNTLET", 192, 25, 3);
-            text::print(&mut self.canvas, "MODE", 216, 39, 3);
-            return;
-        }
-
-        if settings.get_players() == 1 {
-            text::print(&mut self.canvas, "ONE", 220, 25, 3);
-            text::print(&mut self.canvas, " PLAYER ", 192, 39, 3);
-            return;
-        }
-
-        text::print(&mut self.canvas, "TWO", 220, 25, 3);
-        text::print(&mut self.canvas, " PLAYERS", 184, 39, 3);
+    fn show_players(&mut self) {
+        text::print(&mut self.canvas, "ONE", 220, 25, 3);
+        text::print(&mut self.canvas, " PLAYER ", 192, 39, 3);
     }
 
-    pub fn show_scores(&mut self, scores: &Scores) {
-        self.draw_text("HIGH SCORES", 16, 25, 3);
-        let mut color = 2;
-        for i in 1..scores.scores_init.len() {
-            let mut line: String = String::from(&scores.scores_init[i]);
-            let score: String = format!("{:6}", scores.scores_high[i + 1]);
-            line = String::from(line) + "  " + &score;
-            self.draw_text(&line, 16, (31 + 13 * i) as i32, color);
-            color = 1;
-        }
-    }
-
-    pub fn show_background(&mut self) {
+    fn show_background(&mut self) {
         draw_background(&mut self.canvas);
     }
 
@@ -195,16 +155,12 @@ impl Screen {
     pub fn draw_text(&mut self, text: &str, x: i32, y: i32, flag: i32) {
         text::print(&mut self.canvas, text, x, y, flag);
     }
+    pub fn draw_number(&mut self, num: usize, x: i32, y: i32, width: i32, flag: i32) {
+        text::print_number(&mut self.canvas, num, x, y, width, flag);
+    }
 
     pub fn render(&mut self) {
         self.canvas.set_draw_color(Color::RGBA(0, 0, 0, 0));
         self.canvas.present();
-    }
-
-    pub fn show_level(&mut self, level: &mut Level) {
-        level.draw_back(&mut self.canvas);
-        level.draw_path(&mut self.canvas);
-        level.draw_emeralds(&mut self.canvas);
-        level.draw_bags(&mut self.canvas);
     }
 }

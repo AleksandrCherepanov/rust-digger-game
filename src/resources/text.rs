@@ -1,7 +1,24 @@
 use sdl2::rect::Point;
 use sdl2::render::WindowCanvas;
-use crate::resources::font::{FONT, LETTER_WIDTH};
+use crate::resources::font::{FONT, WIDTH};
 use crate::resources::palette::get_color;
+
+pub fn print_number(canvas: &mut WindowCanvas, num: usize, x: i32, y: i32, width: i32, flag: i32) {
+    let mut w = width;
+    let mut n = num;
+    let mut text = String::new();
+
+    while w > 0 {
+        let d = n % 10;
+        if w > 1 || d > 0 {
+            text.push(char::from_digit(d as u32, 10).unwrap())
+        }
+        n /= 10;
+        w -= 1;
+    }
+
+    print(canvas, &text, x, y, flag);
+}
 
 pub fn print(canvas: &mut WindowCanvas, text: &str, x: i32, y: i32, flag: i32) {
     let mut x = x;
@@ -16,7 +33,7 @@ pub fn print(canvas: &mut WindowCanvas, text: &str, x: i32, y: i32, flag: i32) {
         }
 
         print_letter(canvas, &letter, x, y, flag);
-        x += LETTER_WIDTH as i32 / 2;
+        x += WIDTH as i32 / 2;
     }
 }
 
@@ -30,7 +47,7 @@ fn print_letter(canvas: &mut WindowCanvas, letter: &[i8; 24 * 24], x: i32, y: i3
         canvas.set_draw_color(color);
 
         canvas.draw_point(Point::new(xx, yy)).unwrap();
-        if (i + 1) % LETTER_WIDTH == 0 {
+        if (i + 1) % WIDTH == 0 {
             xx = initial_x;
             yy += 1;
         }

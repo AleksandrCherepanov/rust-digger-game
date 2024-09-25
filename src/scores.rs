@@ -1,10 +1,12 @@
 use std::fs::File;
 use std::io::{BufReader, Read, Seek, SeekFrom};
+use crate::screen::Screen;
 use crate::settings::Settings;
 
 const SCORES_HIGH_LINES: usize = 12;
 const SCORES_LINES: usize = SCORES_HIGH_LINES - 1;
-
+const MAX_SCORES: usize = 999999;
+const BONUS_SCORES: usize = 20000;
 
 #[derive(Debug)]
 pub struct Scores {
@@ -15,6 +17,9 @@ pub struct Scores {
     pub high: String,
     pub scores_high: [i64; SCORES_HIGH_LINES],
     pub scores_init: [String; SCORES_LINES],
+    pub current_scores: usize,
+    pub next_bonus: usize,
+    pub penalty: usize,
 }
 
 impl Scores {
@@ -27,6 +32,9 @@ impl Scores {
             high: String::new(),
             scores_high: [0; SCORES_HIGH_LINES],
             scores_init: [const { String::new() }; SCORES_LINES],
+            current_scores: 0,
+            next_bonus: BONUS_SCORES,
+            penalty: 0
         }
     }
 
@@ -78,30 +86,41 @@ impl Scores {
             buf.read_to_string(&mut self.scores).unwrap();
         }
     }
+
+    pub fn add_scores(&mut self, scores: usize) {
+        self.current_scores += scores;
+        if self.current_scores > MAX_SCORES {
+            self.current_scores = 0;
+        }
+
+        self.penalty += 3;
+    }
+
+    pub fn is_new_life(&self) -> bool {
+        self.current_scores >= self.next_bonus
+    }
+
+    pub fn increase_bonus_score(&mut self) {
+        self.next_bonus += BONUS_SCORES;
+    }
+
+    pub fn clean_penalty(&mut self) {
+        self.penalty = 0;
+    }
+
+    pub fn draw_saved_scores(&self, screen: &mut Screen) {
+        screen.draw_text("HIGH SCORES", 16, 25, 3);
+        let mut color = 2;
+        for i in 1..self.scores_init.len() {
+            let mut line: String = String::from(&self.scores_init[i]);
+            let score: String = format!("{:6}", self.scores_high[i + 1]);
+            line = String::from(line) + "  " + &score;
+            screen.draw_text(&line, 16, (31 + 13 * i) as i32, color);
+            color = 1;
+        }
+    }
+
+    pub fn draw_current_scores(&self, screen: &mut Screen) {
+        screen.draw_number(self.current_scores, 0, 0, 6, 1);
+    }
 }
-
-// void loadscores(void);
-// void showtable(void);
-// void zeroscores(void);
-// void writecurscore(int col);
-// void drawscores(void);
-// void initscores(void);
-// void endofgame(void);
-// void scorekill(int n);
-// void scorekill2(void);
-// void scoreemerald(int n);
-// void scoreoctave(int n);
-// void scoregold(int n);
-// void scorebonus(int n);
-// void scoreeatm(int n,int msc);
-// void addscore(int n,Sint4 score);
-//
-// #ifdef INTDRF
-// Sint5 getscore0(void);
-// #endif
-//
-// extern Uint4 bonusscore;
-// extern Sint5 scoret;
-//
-// extern char scoreinit[11][4];
-
